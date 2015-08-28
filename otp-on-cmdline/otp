@@ -15,116 +15,117 @@ from argparse import RawTextHelpFormatter
 
 HOLDOFF = 6
 
-parser = argparse.ArgumentParser(
-    description=('''
-Return a TOTP code for a provided label along with it's validity
-period. If the generated code is valid for 5 or less seconds the
-script will pause and generate the next code.
+def main():
+    parser = argparse.ArgumentParser(
+        description=('''
+    Return a TOTP code for a provided label along with it's validity
+    period. If the generated code is valid for 5 or less seconds the
+    script will pause and generate the next code.
 
-Hook your shell into 'otp -t' for tab completion
+    Hook your shell into 'otp -t' for tab completion
 
-Requires python packages
- * subprocess32
+    Requires python packages
+     * subprocess32
 
-Requires oathtool on the command line
- * (mac) brew install oath-toolkit
+    Requires oathtool on the command line
+     * (mac) brew install oath-toolkit
 
-Requires a YAML file with a list of secrets. By default the script
-looks at ../data/otp-secrets.yaml relative to this script.
+    Requires a YAML file with a list of secrets. By default the script
+    looks at ../data/otp-secrets.yaml relative to this script.
 
-YAML is expected to be encoded as follows:
+    YAML is expected to be encoded as follows:
 
-otpsecrets:
-    label-one: <secret>
-    another-code: <secret>
-    ...'''),
-    formatter_class=RawTextHelpFormatter
-    )
+    otpsecrets:
+        label-one: <secret>
+        another-code: <secret>
+        ...'''),
+        formatter_class=RawTextHelpFormatter
+        )
 
-parser.add_argument('label', nargs='?', help='the label to look up')
-parser.add_argument('-l', '--list-labels', help='list available labels',
-    action='store_true')
-parser.add_argument('-t', '--tab-complete', help='list suitable for tab completion',
-    action='store_true')
-parser.add_argument('-f', '--force', help='disable the <5 second holdoff feature',
-    action='store_true')
-parser.add_argument('-s', '--secrets-file', help='secrets YAML file')
+    parser.add_argument('label', nargs='?', help='the label to look up')
+    parser.add_argument('-l', '--list-labels', help='list available labels',
+        action='store_true')
+    parser.add_argument('-t', '--tab-complete', help='list suitable for tab completion',
+        action='store_true')
+    parser.add_argument('-f', '--force', help='disable the <5 second holdoff feature',
+        action='store_true')
+    parser.add_argument('-s', '--secrets-file', help='secrets YAML file')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-# Quit with error if -l or -t are missing and there is no label
-if not args.tab_complete and not args.list_labels and args.label == None:
-    parser.error('You need to provide a label to look up when not using -l/-t')
-if args.tab_complete and args.list_labels:
-    parser.error('You cannot provide -l & -t together')
+    # Quit with error if -l or -t are missing and there is no label
+    if not args.tab_complete and not args.list_labels and args.label == None:
+        parser.error('You need to provide a label to look up when not using -l/-t')
+    if args.tab_complete and args.list_labels:
+        parser.error('You cannot provide -l & -t together')
 
-# Pick a YAML file
-if args.secrets_file:
-    otpSecretsPath = args.secrets_file
-else:
-    otpSecretsPath = (os.path.dirname(os.path.realpath(__file__))+
-        '/../data/otp-secrets.yaml')
-
-# File exists?
-if not os.path.isfile(otpSecretsPath):
-    sys.exit('Could not find the secrets file at: '+otpSecretsPath)
-
-# Try and parse for valid YAML
-try:
-    with open(otpSecretsPath, 'r') as infile:
-        otpSecrets = yaml.load(infile)
-except yaml.YAMLError, err:
-    if hasattr(err, 'problem_mark'):
-        mark = err.problem_mark
-        print 'Problem parsing YAML \nError position: (%s:%s)' % \
-            (mark.line+1, mark.column+1)
-        sys.exit(1)
+    # Pick a YAML file
+    if args.secrets_file:
+        otpSecretsPath = args.secrets_file
     else:
-        sys.exit(err)
+        otpSecretsPath = (os.path.dirname(os.path.realpath(__file__))+
+            '/../data/otp-secrets.yaml')
 
-if (args.list_labels or args.tab_complete):
-    yamlLabels = []
-    for label in otpSecrets['otpsecrets'].keys():
-        yamlLabels.append(label)
-    yamlLabels.sort()
-    if (args.list_labels):
-        print('\n'.join(str(x) for x in yamlLabels))
-    elif (args.tab_complete):
-        print(' '.join(str(x) for x in yamlLabels))
-    sys.exit()
+    # File exists?
+    if not os.path.isfile(otpSecretsPath):
+        sys.exit('Could not find the secrets file at: '+otpSecretsPath)
 
-# Check the label exists
-if args.label in otpSecrets['otpsecrets']:
+    # Try and parse for valid YAML
     try:
-        # Do some holdoff magic if the 30s window is almost up
-        holdoffCheck = (30 - (datetime.now().second %30))
-        if not args.force and holdoffCheck <= HOLDOFF:
-            print 'Short lived OTP. Holding off for %i seconds...' % (holdoffCheck)
-            time.sleep(holdoffCheck)
-        # Get the code
-        totp = subprocess.check_output(['oathtool', '-b', '--totp', \
-            otpSecrets['otpsecrets'][args.label]]).rstrip('\n')
-        # Is this a number? Print it.
+        with open(otpSecretsPath, 'r') as infile:
+            otpSecrets = yaml.load(infile)
+    except yaml.YAMLError, err:
+        if hasattr(err, 'problem_mark'):
+            mark = err.problem_mark
+            print 'Problem parsing YAML \nError position: (%s:%s)' % \
+                (mark.line+1, mark.column+1)
+            sys.exit(1)
+        else:
+            sys.exit(err)
+
+    if (args.list_labels or args.tab_complete):
+        yamlLabels = []
+        for label in otpSecrets['otpsecrets'].keys():
+            yamlLabels.append(label)
+        yamlLabels.sort()
+        if (args.list_labels):
+            print('\n'.join(str(x) for x in yamlLabels))
+        elif (args.tab_complete):
+            print(' '.join(str(x) for x in yamlLabels))
+        sys.exit()
+
+    # Check the label exists
+    if args.label in otpSecrets['otpsecrets']:
         try:
-            int(totp)
-            print totp
-            print 'Valid for %s more seconds' % (30 - (datetime.now().second %30))
-            # Try and put it on the clipboard
+            # Do some holdoff magic if the 30s window is almost up
+            holdoffCheck = (30 - (datetime.now().second %30))
+            if not args.force and holdoffCheck <= HOLDOFF:
+                print 'Short lived OTP. Holding off for %i seconds...' % (holdoffCheck)
+                time.sleep(holdoffCheck)
+            # Get the code
+            totp = subprocess.check_output(['oathtool', '-b', '--totp', \
+                otpSecrets['otpsecrets'][args.label]]).rstrip('\n')
+            # Is this a number? Print it.
             try:
-                pbcopy = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
-                pbcopy.stdin.write(totp)
-                pbcopy.stdin.close()
-                print '(On the clipboard!)'
-            except subprocess.CalledProcessError, err:
-                print 'Couldn\'t put on the clipboard'
-        # Wasn't parsed as int, but maybe the output is useful?
-        except ValueError:
-            print 'Output from oathtool doesn\'t seem to be valid'
-            print 'Here\'s the output anyway:\n'
-            print totp
-    # Call to oathtool failed
-    except subprocess.CalledProcessError, err:
-        print err.output
-        sys.exit(err.returncode)
-else:
-    print 'Couldn\'t find label \'%s\' in the yaml. (Try the -l switch?)' % args.label
+                int(totp)
+                print totp
+                print 'Valid for %s more seconds' % (30 - (datetime.now().second %30))
+                # Try and put it on the clipboard
+                try:
+                    pbcopy = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
+                    pbcopy.stdin.write(totp)
+                    pbcopy.stdin.close()
+                    print '(On the clipboard!)'
+                except subprocess.CalledProcessError, err:
+                    print 'Couldn\'t put on the clipboard'
+            # Wasn't parsed as int, but maybe the output is useful?
+            except ValueError:
+                print 'Output from oathtool doesn\'t seem to be valid'
+                print 'Here\'s the output anyway:\n'
+                print totp
+        # Call to oathtool failed
+        except subprocess.CalledProcessError, err:
+            print err.output
+            sys.exit(err.returncode)
+    else:
+        print 'Couldn\'t find label \'%s\' in the yaml. (Try the -l switch?)' % args.label
