@@ -40,13 +40,8 @@ setup(
     ],
 
     keywords='oathtool wrapper',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests*'] + ['conf']),
-    include_package_data=True,
+    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=['subprocess32'],
-
-    package_data={
-        'py_oathtool': ['conf/otp-secrets.yaml'],
-    },
 
     entry_points={
         'console_scripts': [

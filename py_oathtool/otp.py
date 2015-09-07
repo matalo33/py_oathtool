@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=('''
     Return a TOTP code for a provided label along with it's validity
-    period. If the generated code is valid for 5 or less seconds the
+    period. If the generated code is valid for 6 or less seconds the
     script will pause and generate the next code.
 
     Hook your shell into 'otp -t' for tab completion
@@ -63,8 +63,7 @@ def main():
     if args.secrets_file:
         otpSecretsPath = args.secrets_file
     else:
-        otpSecretsPath = (os.path.dirname(os.path.realpath(__file__))+
-            '/../data/otp-secrets.yaml')
+        otpSecretsPath = os.path.expanduser("~")+'/.otp-secrets.yaml'
 
     # File exists?
     if not os.path.isfile(otpSecretsPath):
