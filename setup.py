@@ -19,7 +19,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='py_oathtool',
-    version='1.0.0',
+    version='1.0.1',
     description='A python wrapper around oathtool',
     long_description=long_description,
     url='https://github.com/matalo33/py_oathtool',
