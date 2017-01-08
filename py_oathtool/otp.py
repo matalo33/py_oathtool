@@ -118,6 +118,7 @@ def main():
                     try:
                         program = ['xclip', '-selection', 'clipboard'] if platform.system() == 'Linux' else ['pbcopy']
                         process = subprocess.Popen(program, stdin=subprocess.PIPE)
+
                         process.stdin.write(totp)
                         process.stdin.close()
                     except subprocess.CalledProcessError, err:
