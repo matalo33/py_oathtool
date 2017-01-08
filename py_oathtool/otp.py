@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 ###
 ### Wrapper script to assist generating OTP codes with oathtool
@@ -6,6 +6,7 @@
 ###
 import argparse
 import os
+import platform
 import subprocess32 as subprocess
 import sys
 import time
@@ -56,6 +57,7 @@ def main():
     # Quit with error if -l or -t are missing and there is no label
     if not args.tab_complete and not args.list_labels and args.label == None:
         parser.error('You need to provide a label to look up when not using -l/-t')
+
     if args.tab_complete and args.list_labels:
         parser.error('You cannot provide -l & -t together')
 
@@ -63,7 +65,7 @@ def main():
     if args.secrets_file:
         otpSecretsPath = args.secrets_file
     else:
-        otpSecretsPath = os.path.expanduser("~")+'/.otp-secrets.yaml'
+        otpSecretsPath = os.path.join(os.path.expanduser("~"), '.otp-secrets.yaml')
 
     # File exists?
     if not os.path.isfile(otpSecretsPath):
@@ -84,13 +86,16 @@ def main():
 
     if (args.list_labels or args.tab_complete):
         yamlLabels = []
+
         for label in otpSecrets['otpsecrets'].keys():
             yamlLabels.append(label)
         yamlLabels.sort()
+
         if (args.list_labels):
             print('\n'.join(str(x) for x in yamlLabels))
         elif (args.tab_complete):
             print(' '.join(str(x) for x in yamlLabels))
+
         sys.exit()
 
     # Check the label exists
@@ -101,22 +106,22 @@ def main():
             if not args.force and holdoffCheck <= HOLDOFF:
                 print 'Short lived OTP. Holding off for %i seconds...' % (holdoffCheck)
                 time.sleep(holdoffCheck)
+
             # Get the code
             totp = subprocess.check_output(['oathtool', '-b', '--totp', \
                 otpSecrets['otpsecrets'][args.label]]).rstrip('\n')
             # Is this a number? Print it.
             try:
-                int(totp)
-                print totp
-                print 'Valid for %s more seconds' % (30 - (datetime.now().second %30))
-                # Try and put it on the clipboard
-                try:
-                    pbcopy = subprocess.Popen(['pbcopy'], stdin=subprocess.PIPE)
-                    pbcopy.stdin.write(totp)
-                    pbcopy.stdin.close()
-                    print '(On the clipboard!)'
-                except subprocess.CalledProcessError, err:
-                    print 'Couldn\'t put on the clipboard'
+                print '%s\t(%dsec)' % (totp, (30 - (datetime.now().second %30)))
+                # Try and put it on the clipboard unless disabled
+                if 'use_clipboard' not in otpSecrets or otpSecrets['use_clipboard'] != False:
+                    try:
+                        binary = 'xclip' if platform.system() == 'Linux' else 'pbcopy'
+                        process = subprocess.Popen([binary], stdin=subprocess.PIPE)
+                        process.stdin.write(totp)
+                        process.stdin.close()
+                    except subprocess.CalledProcessError, err:
+                        print 'Couldn\'t put on the clipboard'
             # Wasn't parsed as int, but maybe the output is useful?
             except ValueError:
                 print 'Output from oathtool doesn\'t seem to be valid'
@@ -128,3 +133,6 @@ def main():
             sys.exit(err.returncode)
     else:
         print 'Couldn\'t find label \'%s\' in the yaml. (Try the -l switch?)' % args.label
+
+if __name__ == '__main__':
+    main()

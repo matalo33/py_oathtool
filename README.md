@@ -17,7 +17,8 @@ Tested only on Mac (for now).
 
 **oathtool** should be available on the PATH
 
-* (Mac) `brew install oath-toolkit`
+* Mac: `brew install oath-toolkit`
+* Linux: `xclip` for clipboard support
 
 ## Usage
 
