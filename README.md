@@ -14,6 +14,7 @@ Tested only on Mac (for now).
 
 * Python packages
     * subprocess32
+    * pyaml
 
 **oathtool** should be available on the PATH
 
