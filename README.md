@@ -13,14 +13,13 @@ Developed and tested mainly on MacOS.
 ## Dependencies
 
 * Python packages
-    * subprocess32
+    * subprocess
     * pyaml
 
 **oathtool** should be available on the PATH
 
 * Mac: `brew install oath-toolkit`
-
-Clipboard support on MacOS is supported by `pbcopy` which is installed by default. For Linux install `xclip`
+* Linux: `xclip` for X11 or `wl-copy` for Wayland for clipboard support
 
 ## Usage
 
