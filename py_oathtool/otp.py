@@ -116,8 +116,8 @@ def main():
                 # Try and put it on the clipboard unless disabled
                 if 'use_clipboard' not in otpSecrets or otpSecrets['use_clipboard'] != False:
                     try:
-                        binary = 'xclip' if platform.system() == 'Linux' else 'pbcopy'
-                        process = subprocess.Popen([binary], stdin=subprocess.PIPE)
+                        program = ['xclip', '-selection', 'clipboard'] if platform.system() == 'Linux' else ['pbcopy']
+                        process = subprocess.Popen(program, stdin=subprocess.PIPE)
                         process.stdin.write(totp)
                         process.stdin.close()
                     except subprocess.CalledProcessError, err:
