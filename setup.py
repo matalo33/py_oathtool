@@ -41,7 +41,7 @@ setup(
 
     keywords='oathtool wrapper',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=['subprocess32'],
+    install_requires=['subprocess32', 'pyaml'],
 
     entry_points={
         'console_scripts': [
