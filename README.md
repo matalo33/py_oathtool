@@ -4,7 +4,7 @@ A python wrapper script around oathtool to allow for easy OTP code generation on
 
 This project was born out of my frustration of having many many 2-Factor accounts on my mobile phone, which did not present a quick and easy mechanism to generate and use codes.
 
-Tested only on Mac (for now).
+Developed and tested mainly on MacOS.
 
 ## Installation
 
@@ -19,7 +19,8 @@ Tested only on Mac (for now).
 **oathtool** should be available on the PATH
 
 * Mac: `brew install oath-toolkit`
-* Linux: `xclip` for clipboard support
+
+Clipboard support on MacOS is supported by `pbcopy` which is installed by default. For Linux install `xclip`
 
 ## Usage
 
@@ -49,7 +50,7 @@ Read about all options
 
     $ otp -h
 
-## Configuration
+## Declaring accounts
 
 Two pieces of information are required for each account:
 
@@ -63,14 +64,24 @@ The script will read these values from a config file sourced from, by default, *
       aws-account-dev: XQYNZOIA4PWCTJCB9654EQP5LUIP23BOW6J5ZIRZZSDHK24AUEDUSCONP3KQQY4N
       aws-account-prod: 57QPXJFJ4D2ILQBRZGSHKAZCJ2Y46C52FGVSZRYMY7UMWTIQI6I3GOJQZ4VJN2R4
 
+## Building
+
+Activate the pipenv with the `--dev` flag
+
+    pipenv install --dev
+    pipenv shell
+
+Build the packages
+
+    python setup.py sdist bdist_wheel
+
+Upload to PyPI
+
+    twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
 ## Disclaimer
 
 2-Factor is meant to provide an extra layer of account security and this tool does not exactly promote that concept. You should be responsible for taking reasonable steps to protect your secrets file, and perhaps this is not the ideal 2-Factor solution for your most important accounts.
 
 I take no responsibility if you lose accounts through using this tool.
 
-## Building
-
-To follow...
-
-pip install --user -e .

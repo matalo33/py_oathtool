@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"subprocess32" = "*"
+pyyaml = "*"
+
+[dev-packages]
+setuptools = "*"
+wheel = "*"
+twine = "*"
+
+[requires]
+python_version = "2.7"
