@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 ###
 ### Wrapper script to assist generating OTP codes with oathtool
@@ -7,7 +7,7 @@
 import argparse
 import os
 import platform
-import subprocess32 as subprocess
+import subprocess
 import sys
 import time
 import yaml
@@ -26,7 +26,7 @@ def main():
     Hook your shell into 'otp -t' for tab completion
 
     Requires python packages
-     * subprocess32
+     * subprocess
 
     Requires oathtool on the command line
      * (mac) brew install oath-toolkit
@@ -74,12 +74,11 @@ def main():
     # Try and parse for valid YAML
     try:
         with open(otpSecretsPath, 'r') as infile:
-            otpSecrets = yaml.load(infile)
-    except yaml.YAMLError, err:
+            otpSecrets = yaml.safe_load(infile)
+    except yaml.YAMLError as err:
         if hasattr(err, 'problem_mark'):
             mark = err.problem_mark
-            print 'Problem parsing YAML \nError position: (%s:%s)' % \
-                (mark.line+1, mark.column+1)
+            print('Problem parsing YAML \nError position: (%s:%s)' % (mark.line+1, mark.column+1))
             sys.exit(1)
         else:
             sys.exit(err)
@@ -98,42 +97,49 @@ def main():
 
         sys.exit()
 
+    # Update the holdoff value if one was specified in the YAML file
+    if 'holdoff' in otpSecrets:
+        global HOLDOFF
+        HOLDOFF = otpSecrets['holdoff']
+
     # Check the label exists
     if args.label in otpSecrets['otpsecrets']:
         try:
             # Do some holdoff magic if the 30s window is almost up
             holdoffCheck = (30 - (datetime.now().second %30))
             if not args.force and holdoffCheck <= HOLDOFF:
-                print 'Short lived OTP. Holding off for %i seconds...' % (holdoffCheck)
+                print('Short lived OTP. Holding off for %i second%s...' % (holdoffCheck, ('' if holdoffCheck == 1 else 's')))
                 time.sleep(holdoffCheck)
 
             # Get the code
             totp = subprocess.check_output(['oathtool', '-b', '--totp', \
-                otpSecrets['otpsecrets'][args.label]]).rstrip('\n')
+                otpSecrets['otpsecrets'][args.label]]).rstrip(b'\n')
+
             # Is this a number? Print it.
             try:
-                print '%s\t(%dsec)' % (totp, (30 - (datetime.now().second %30)))
-                # Try and put it on the clipboard unless disabled
-                if 'use_clipboard' not in otpSecrets or otpSecrets['use_clipboard'] != False:
+                print('%s\t(%dsec)' % (totp.decode(), (30 - (datetime.now().second %30))))
+
+                # Try and put it on the clipboard unless disabled and printing to a terminal
+                if ('use_clipboard' not in otpSecrets or otpSecrets['use_clipboard'] != False) and sys.stdout.isatty():
                     try:
                         program = ['xclip', '-selection', 'clipboard'] if platform.system() == 'Linux' else ['pbcopy']
                         process = subprocess.Popen(program, stdin=subprocess.PIPE)
 
                         process.stdin.write(totp)
                         process.stdin.close()
-                    except subprocess.CalledProcessError, err:
-                        print 'Couldn\'t put on the clipboard'
+                    except subprocess.CalledProcessError as err:
+                        print('Couldn\'t put on the clipboard')
             # Wasn't parsed as int, but maybe the output is useful?
             except ValueError:
-                print 'Output from oathtool doesn\'t seem to be valid'
-                print 'Here\'s the output anyway:\n'
-                print totp
+                print('Output from oathtool doesn\'t seem to be valid')
+                print('Here\'s the output anyway:\n')
+                print(totp.decode())
         # Call to oathtool failed
-        except subprocess.CalledProcessError, err:
-            print err.output
+        except subprocess.CalledProcessError as err:
+            print(err.output)
             sys.exit(err.returncode)
     else:
-        print 'Couldn\'t find label \'%s\' in the yaml. (Try the -l switch?)' % args.label
+        print('Couldn\'t find label \'%s\' in the yaml. (Try the -l switch?)' % args.label)
 
 if __name__ == '__main__':
     main()
