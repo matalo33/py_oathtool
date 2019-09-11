@@ -24,6 +24,7 @@ setup(
     version='1.1.0',
     description='A python wrapper around oathtool',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/matalo33/py_oathtool',
     author='Matthew Taylor',
     author_email='matthew@m-taylor.co.uk',

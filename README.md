@@ -83,6 +83,7 @@ For zsh support, add the following to your `.zshrc` file:
 
 Activate the pipenv with the `--dev` flag
 
+    pipenv --three
     pipenv install --dev
     pipenv shell
 
