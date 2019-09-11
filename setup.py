@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """A setuptools based setup module.
 
 See:
@@ -19,7 +21,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='py_oathtool',
-    version='1.0.2',
+    version='1.1.0',
     description='A python wrapper around oathtool',
     long_description=long_description,
     url='https://github.com/matalo33/py_oathtool',
@@ -35,8 +37,7 @@ setup(
         'Topic :: System :: Systems Administration',
         'Topic :: Utilities',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
     ],
 
     keywords='oathtool wrapper',

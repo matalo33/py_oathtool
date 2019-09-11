@@ -64,6 +64,21 @@ The script will read these values from a config file sourced from, by default, *
       aws-account-dev: XQYNZOIA4PWCTJCB9654EQP5LUIP23BOW6J5ZIRZZSDHK24AUEDUSCONP3KQQY4N
       aws-account-prod: 57QPXJFJ4D2ILQBRZGSHKAZCJ2Y46C52FGVSZRYMY7UMWTIQI6I3GOJQZ4VJN2R4
 
+Additionally, the following configuration options are supported in the **~/.otp-secrets.yaml** file:
+
+* `holdoff`: Specify a different holdoff value to wait for the next code
+* `use_clipboard`: Disable putting the code on the clipboard
+
+## Autocompletion
+
+Autocompletion support can be added through use of the `-t` flag.
+
+For zsh support, add the following to your `.zshrc` file:
+
+    compdef _otp otp
+    _otp() {
+      compadd `otp -t`
+    }
 ## Building
 
 Activate the pipenv with the `--dev` flag
@@ -84,4 +99,3 @@ Upload to PyPI
 2-Factor is meant to provide an extra layer of account security and this tool does not exactly promote that concept. You should be responsible for taking reasonable steps to protect your secrets file, and perhaps this is not the ideal 2-Factor solution for your most important accounts.
 
 I take no responsibility if you lose accounts through using this tool.
-
