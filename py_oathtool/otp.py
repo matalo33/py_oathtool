@@ -122,7 +122,14 @@ def main():
                 # Try and put it on the clipboard unless disabled and printing to a terminal
                 if ('use_clipboard' not in otpSecrets or otpSecrets['use_clipboard'] != False) and sys.stdout.isatty():
                     try:
-                        program = ['xclip', '-selection', 'clipboard'] if platform.system() == 'Linux' else ['pbcopy']
+                        program = None
+
+                        if platform.system() == 'Linux':
+                            # If on Linux determine if using X11 or Wayland
+                            program = ['wl-copy'] if 'WAYLAND_DISPLAY' in os.environ else ['xclip', '-selection', 'clipboard']
+                        else:
+                            program = ['pbcopy']
+
                         process = subprocess.Popen(program, stdin=subprocess.PIPE)
 
                         process.stdin.write(totp)

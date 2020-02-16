@@ -19,7 +19,9 @@ Developed and tested mainly on MacOS.
 **oathtool** should be available on the PATH
 
 * Mac: `brew install oath-toolkit`
-* Linux: `xclip` for X11 or `wl-copy` for Wayland for clipboard support
+* Linux: `xclip` on X11 or `wl-copy` on Wayland for clipboard support
+
+Clipboard support on MacOS is supported by `pbcopy` which is installed by default.
 
 ## Usage
 
