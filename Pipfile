@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"subprocess32" = "*"
+subprocess32 = "*"
 pyyaml = "*"
 
 [dev-packages]
@@ -13,4 +13,4 @@ wheel = "*"
 twine = "*"
 
 [requires]
-python_version = "2.7"
+python_version = "3.7"
