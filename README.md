@@ -79,6 +79,14 @@ For zsh support, add the following to your `.zshrc` file:
     _otp() {
       compadd `otp -t`
     }
+
+For bash support, add the following to your `.bashrc` file:
+
+    function _otp(){
+	  [[ ${COMP_CWORD} -eq 1 ]] && COMPREPLY=($(compgen -W "$(otp -t)" "${COMP_WORDS[1]}"))
+    }
+    complete -F _otp otp
+
 ## Building
 
 Activate the pipenv with the `--dev` flag
