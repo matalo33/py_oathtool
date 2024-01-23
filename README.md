@@ -1,5 +1,8 @@
 # py_oathtool
 
+Deprecated - This was a tool I found helpful many years ago and have not kept up to date. A more up to date fork can be found at https://github.com/shanet/py_oathtool/.
+
+## About
 A python wrapper script around oathtool to allow for easy OTP code generation on the command line.
 
 This project was born out of my frustration of having many many 2-Factor accounts on my mobile phone, which did not present a quick and easy mechanism to generate and use codes.
